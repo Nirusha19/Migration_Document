@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>GitHub Migration Tool</title>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@angular/material@16.2.0/prebuilt-themes/indigo-pink.css" rel="stylesheet">
+    <style>
+        body { 
+            margin: 0; 
+            font-family: Roboto, "Helvetica Neue", sans-serif; 
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .card-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .card-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+        }
+        .card-content {
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 GitHub Migration Tool</h1>
+        <p>Generate comprehensive migration documents from GitHub repositories</p>
+    </div>
+
+    <div class="container">
+        <!-- GitHub Connection -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">🔗 GitHub Connection</h2>
+            </div>
+            <div class="card-content">
+                <div id="connection-form">
+                    <div class="form-group">
+                        <label class="form-label">GitHub Personal Access Token</label>
+                        <input type="password" id="github-token" class="form-input" 
+                               placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+                        <small style="color: #666; margin-top: 5px; display: block;">
+                            Enter your GitHub Personal Access Token. Get one at 
+                            <a href="https://github.com/settings/tokens" target="_blank">GitHub Settings > Tokens</a>
+                        </small>
+                    </div>
+                    <button id="connect-btn" class="btn" onclick="connectToGitHub()">
+                        Connect to GitHub
+                    </button>
+                </div>
+                <div id="connection-status" class="hidden"></div>
+            </div>
+        </div>
+
+        <!-- Migration Form -->
+        <div class="card" id="migration-form" style="display: none;">
+            <div class="card-header">
+                <h2 class="card-title">📄 Generate Migration Document</h2>
+            </div>
+            <div class="card-content">
+                <div class="form-group">
+                    <label class="form-label">GitHub Repository URL</label>
+                    <input type="url" id="repo-url" class="form-input" 
+                           placeholder="https://github.com/owner/repository">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">From Date</label>
+                    <input type="date" id="from-date" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">To Date</label>
+                    <input type="date" id="to-date" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Document Format</label>
+                    <select id="format" class="form-input">
+                        <option value="pdf">PDF Document</option>
+                        <option value="excel">Excel Spreadsheet</option>
+                    </select>
+                </div>
+                <button id="generate-btn" class="btn" onclick="generateDocument()">
+                    Generate Migration Document
+                </button>
+                <div id="generation-status" class="hidden"></div>
+            </div>
+        </div>
+
+        <!-- Repository Info -->
+        <div class="card" id="repo-info" style="display: none;">
+            <div class="card-header">
+                <h2 class="card-title">📊 Repository Information</h2>
+            </div>
+            <div class="card-content" id="repo-info-content">
+                Loading repository information...
+            </div>
+        </div>
+
+        <!-- Commits List -->
+        <div class="card" id="commits-list" style="display: none;">
+            <div class="card-header">
+                <h2 class="card-title">📝 Commit History</h2>
+            </div>
+            <div class="card-content" id="commits-content">
+                Loading commits...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isConnected = false;
+        let currentToken = '';
+
+        // Set default dates (last 30 days)
+        window.onload = function() {
+            const toDate = new Date();
+            const fromDate = new Date();
+            fromDate.setDate(fromDate.getDate() - 30);
+            
+            document.getElementById('to-date').value = toDate.toISOString().split('T')[0];
+            document.getElementById('from-date').value = fromDate.toISOString().split('T')[0];
+        };
+
+        async function connectToGitHub() {
+            const token = document.getElementById('github-token').value.trim();
+            const connectBtn = document.getElementById('connect-btn');
+            const statusDiv = document.getElementById('connection-status');
+
+            if (!token) {
+                showStatus('Please enter a GitHub token', 'error');
+                return;
+            }
+
+            if (token.length < 40) {
+                showStatus('Token must be at least 40 characters long', 'error');
+                return;
+            }
+
+            connectBtn.disabled = true;
+            connectBtn.innerHTML = '<span class="loading"></span> Connecting...';
+
+            try {
+                const response = await fetch('/api/init-github', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ token })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    isConnected = true;
+                    currentToken = token;
+                    showStatus(`✅ Successfully connected to GitHub as ${data.user}`, 'success');
+                    document.getElementById('connection-form').style.display = 'none';
+                    document.getElementById('migration-form').style.display = 'block';
+                    document.getElementById('repo-info').style.display = 'block';
+                    document.getElementById('commits-list').style.display = 'block';
+                } else {
+                    showStatus(`❌ Connection failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ Connection failed: ${error.message}`, 'error');
+            } finally {
+                connectBtn.disabled = false;
+                connectBtn.innerHTML = 'Connect to GitHub';
+            }
+        }
+
+        async function generateDocument() {
+            const repoUrl = document.getElementById('repo-url').value.trim();
+            const fromDate = document.getElementById('from-date').value;
+            const toDate = document.getElementById('to-date').value;
+            const format = document.getElementById('format').value;
+            const generateBtn = document.getElementById('generate-btn');
+            const statusDiv = document.getElementById('generation-status');
+
+            if (!repoUrl || !fromDate || !toDate) {
+                showGenerationStatus('Please fill in all required fields', 'error');
+                return;
+            }
+
+            if (!repoUrl.includes('github.com')) {
+                showGenerationStatus('Please enter a valid GitHub repository URL', 'error');
+                return;
+            }
+
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<span class="loading"></span> Generating...';
+
+            try {
+                const response = await fetch('/api/generate-migration', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        gitUrl: repoUrl,
+                        fromDate,
+                        toDate,
+                        format
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showGenerationStatus(`✅ Document generated successfully! <a href="${data.downloadUrl}" target="_blank">Download ${data.documentPath}</a>`, 'success');
+                    loadRepositoryInfo(repoUrl);
+                    loadCommits(repoUrl, fromDate, toDate);
+                } else {
+                    showGenerationStatus(`❌ Generation failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showGenerationStatus(`❌ Generation failed: ${error.message}`, 'error');
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = 'Generate Migration Document';
+            }
+        }
+
+        async function loadRepositoryInfo(repoUrl) {
+            const urlMatch = repoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
+            if (!urlMatch) return;
+
+            const [, owner, repo] = urlMatch;
+            const repoName = repo.replace('.git', '');
+
+            try {
+                const response = await fetch(`/api/repository/${owner}/${repoName}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    const repoInfo = data.repository;
+                    document.getElementById('repo-info-content').innerHTML = `
+                        <h3>${repoInfo.full_name}</h3>
+                        <p><strong>Description:</strong> ${repoInfo.description || 'No description'}</p>
+                        <p><strong>Language:</strong> ${repoInfo.language || 'Not specified'}</p>
+                        <p><strong>Stars:</strong> ${repoInfo.stargazers_count}</p>
+                        <p><strong>Forks:</strong> ${repoInfo.forks_count}</p>
+                        <p><strong>Branches:</strong> ${data.branches.length}</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('Failed to load repository info:', error);
+            }
+        }
+
+        async function loadCommits(repoUrl, fromDate, toDate) {
+            const urlMatch = repoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
+            if (!urlMatch) return;
+
+            const [, owner, repo] = urlMatch;
+            const repoName = repo.replace('.git', '');
+
+            try {
+                const response = await fetch(`/api/commits/${owner}/${repoName}?fromDate=${fromDate}&toDate=${toDate}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    const commitsHtml = data.commits.map(commit => `
+                        <div style="border-bottom: 1px solid #eee; padding: 10px 0;">
+                            <strong>${commit.commit.message}</strong><br>
+                            <small>Author: ${commit.commit.author.name} | Date: ${new Date(commit.commit.author.date).toLocaleString()} | SHA: ${commit.sha.substring(0, 8)}</small>
+                        </div>
+                    `).join('');
+                    
+                    document.getElementById('commits-content').innerHTML = `
+                        <h4>Commits (${data.total})</h4>
+                        ${commitsHtml}
+                    `;
+                }
+            } catch (error) {
+                console.error('Failed to load commits:', error);
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('connection-status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = message;
+            statusDiv.classList.remove('hidden');
+        }
+
+        function showGenerationStatus(message, type) {
+            const statusDiv = document.getElementById('generation-status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = message;
+            statusDiv.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

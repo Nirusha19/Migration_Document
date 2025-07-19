@@ -23,6 +23,10 @@ app.use(express.static('public'));
 let octokit = null;
 
 // Routes
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'GitHub Migration Tool is running' });
 });
