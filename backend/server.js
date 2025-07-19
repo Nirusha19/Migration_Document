@@ -36,6 +36,9 @@ app.use(cors({
 // Logging
 app.use(morgan('combined'));
 
+// Static files middleware
+app.use(express.static('public'));
+
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
