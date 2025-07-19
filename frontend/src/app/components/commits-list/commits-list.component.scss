@@ -1,0 +1,175 @@
+.commits-list-card {
+  margin-bottom: 20px;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  gap: 20px;
+
+  p {
+    color: #666;
+    margin: 0;
+  }
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #f44336;
+  padding: 20px;
+  background-color: #ffebee;
+  border-radius: 8px;
+
+  mat-icon {
+    font-size: 24px;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.commits-content {
+  .table-header {
+    margin-bottom: 20px;
+
+    .search-field {
+      width: 100%;
+      max-width: 400px;
+    }
+  }
+
+  .table-container {
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+
+    .commits-table {
+      width: 100%;
+
+      .mat-header-cell {
+        background-color: #f5f5f5;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .mat-cell {
+        padding: 12px 16px;
+        vertical-align: top;
+      }
+
+      .sha-code {
+        background-color: #f0f0f0;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        color: #333;
+      }
+
+      .commit-message {
+        position: relative;
+        max-width: 400px;
+
+        .message-text {
+          display: block;
+          line-height: 1.4;
+        }
+
+        .message-tooltip {
+          display: none;
+          position: absolute;
+          bottom: 100%;
+          left: 0;
+          background-color: #333;
+          color: white;
+          padding: 8px 12px;
+          border-radius: 4px;
+          font-size: 12px;
+          white-space: pre-wrap;
+          max-width: 300px;
+          z-index: 1000;
+        }
+
+        &:hover .message-tooltip {
+          display: block;
+        }
+      }
+
+      .author-info,
+      .date-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        mat-icon {
+          font-size: 16px;
+          color: #666;
+        }
+
+        span {
+          font-size: 14px;
+        }
+      }
+    }
+
+    .no-data {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+      color: #666;
+
+      mat-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        color: #ccc;
+      }
+
+      p {
+        margin: 0;
+        font-size: 16px;
+      }
+    }
+  }
+
+  .summary-stats {
+    display: flex;
+    gap: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+
+    .stat-item {
+      color: #555;
+      font-size: 14px;
+
+      strong {
+        color: #333;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .commits-table {
+    .mat-cell {
+      padding: 8px 12px !important;
+    }
+
+    .commit-message {
+      max-width: 200px !important;
+    }
+  }
+
+  .summary-stats {
+    flex-direction: column;
+    gap: 10px !important;
+  }
+}

@@ -1,0 +1,80 @@
+<mat-card class="connection-card">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>link</mat-icon>
+      GitHub Connection
+    </mat-card-title>
+    <mat-card-subtitle>
+      Connect to GitHub to access repository data
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div *ngIf="!isConnected">
+      <form [formGroup]="connectionForm" (ngSubmit)="connect()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>GitHub Personal Access Token</mat-label>
+          <input 
+            matInput 
+            formControlName="token" 
+            type="password"
+            placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            [matTooltip]="getTokenHelpText()"
+            matTooltipPosition="above">
+          <mat-icon matSuffix>vpn_key</mat-icon>
+          <mat-error *ngIf="connectionForm.get('token')?.hasError('required')">
+            GitHub token is required
+          </mat-error>
+          <mat-error *ngIf="connectionForm.get('token')?.hasError('minlength')">
+            Token must be at least 40 characters
+          </mat-error>
+        </mat-form-field>
+
+        <div class="button-container">
+          <button 
+            mat-raised-button 
+            color="primary" 
+            type="submit"
+            [disabled]="connectionForm.invalid || isConnecting">
+            <mat-spinner *ngIf="isConnecting" diameter="20"></mat-spinner>
+            <span *ngIf="!isConnecting">Connect to GitHub</span>
+          </button>
+        </div>
+      </form>
+
+      <mat-divider class="margin-top margin-bottom"></mat-divider>
+      
+      <div class="help-section">
+        <h4>How to get a GitHub Personal Access Token:</h4>
+        <ol>
+          <li>Go to <a href="https://github.com/settings/tokens" target="_blank">GitHub Settings > Tokens</a></li>
+          <li>Click "Generate new token (classic)"</li>
+          <li>Select the following scopes:
+            <ul>
+              <li><code>repo</code> - Full control of private repositories</li>
+              <li><code>read:org</code> - Read organization data</li>
+            </ul>
+          </li>
+          <li>Copy the generated token and paste it above</li>
+        </ol>
+      </div>
+    </div>
+
+    <div *ngIf="isConnected" class="connected-status">
+      <mat-icon class="success-icon">check_circle</mat-icon>
+      <div class="status-text">
+        <h3>Connected to GitHub</h3>
+        <p>User: <strong>{{ connectedUser }}</strong></p>
+        <p>You can now access repository data and generate migration documents.</p>
+      </div>
+      <button 
+        mat-stroked-button 
+        color="warn" 
+        (click)="disconnect()"
+        class="disconnect-button">
+        <mat-icon>link_off</mat-icon>
+        Disconnect
+      </button>
+    </div>
+  </mat-card-content>
+</mat-card>

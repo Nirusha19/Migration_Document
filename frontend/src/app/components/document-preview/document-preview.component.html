@@ -1,0 +1,94 @@
+<mat-card class="document-preview-card" *ngIf="generatedDocument">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>file_download</mat-icon>
+      Generated Document
+    </mat-card-title>
+    <mat-card-subtitle>
+      Your migration document is ready for download
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="document-info">
+      <div class="document-icon">
+        <mat-icon [class]="getDocumentIcon()">{{ getDocumentIcon() }}</mat-icon>
+      </div>
+      
+      <div class="document-details">
+        <h3>{{ generatedDocument.documentPath }}</h3>
+        <p class="document-type">{{ getDocumentType() }}</p>
+        <p class="generation-time">Generated at: {{ new Date().toLocaleString() }}</p>
+      </div>
+
+      <div class="document-actions">
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="downloadDocument()"
+          [disabled]="isDownloading"
+          class="download-button">
+          <mat-spinner *ngIf="isDownloading" diameter="20"></mat-spinner>
+          <mat-icon *ngIf="!isDownloading">download</mat-icon>
+          <span *ngIf="!isDownloading">Download Document</span>
+          <span *ngIf="isDownloading">Downloading...</span>
+        </button>
+
+        <button 
+          mat-stroked-button 
+          color="accent"
+          (click)="downloadDocument()"
+          [disabled]="isDownloading"
+          class="preview-button">
+          <mat-icon>visibility</mat-icon>
+          Preview
+        </button>
+      </div>
+    </div>
+
+    <mat-divider class="margin-top margin-bottom"></mat-divider>
+
+    <div class="document-summary">
+      <h4>Document Summary</h4>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <mat-icon>description</mat-icon>
+          <div class="summary-content">
+            <span class="summary-label">Document Type</span>
+            <span class="summary-value">{{ getDocumentType() }}</span>
+          </div>
+        </div>
+
+        <div class="summary-item">
+          <mat-icon>schedule</mat-icon>
+          <div class="summary-content">
+            <span class="summary-label">Generated</span>
+            <span class="summary-value">{{ new Date().toLocaleString() }}</span>
+          </div>
+        </div>
+
+        <div class="summary-item">
+          <mat-icon>check_circle</mat-icon>
+          <div class="summary-content">
+            <span class="summary-label">Status</span>
+            <span class="summary-value success">Ready for Download</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="download-instructions">
+      <h4>Download Instructions</h4>
+      <ol>
+        <li>Click the "Download Document" button above</li>
+        <li>The file will be saved to your default downloads folder</li>
+        <li>Open the document with the appropriate application:
+          <ul>
+            <li><strong>PDF:</strong> Adobe Reader, Chrome, Firefox, or any PDF viewer</li>
+            <li><strong>Excel:</strong> Microsoft Excel, Google Sheets, or LibreOffice Calc</li>
+          </ul>
+        </li>
+      </ol>
+    </div>
+  </mat-card-content>
+</mat-card>

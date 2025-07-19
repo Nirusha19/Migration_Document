@@ -1,0 +1,103 @@
+<mat-card class="repository-info-card" *ngIf="gitUrl">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>info</mat-icon>
+      Repository Information
+    </mat-card-title>
+    <mat-card-subtitle>
+      Details for {{ gitUrl }}
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div *ngIf="isLoading" class="loading-spinner">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading repository information...</p>
+    </div>
+
+    <div *ngIf="error" class="error-message">
+      <mat-icon>error</mat-icon>
+      <p>{{ error }}</p>
+    </div>
+
+    <div *ngIf="repositoryInfo && !isLoading && !error" class="repository-details">
+      <div class="repo-header">
+        <h3>{{ repositoryInfo.repository.full_name }}</h3>
+        <p class="description">{{ repositoryInfo.repository.description || 'No description available' }}</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-item">
+          <mat-icon>star</mat-icon>
+          <div class="stat-content">
+            <span class="stat-value">{{ getRepositoryStats()?.stars }}</span>
+            <span class="stat-label">Stars</span>
+          </div>
+        </div>
+
+        <div class="stat-item">
+          <mat-icon>call_split</mat-icon>
+          <div class="stat-content">
+            <span class="stat-value">{{ getRepositoryStats()?.forks }}</span>
+            <span class="stat-label">Forks</span>
+          </div>
+        </div>
+
+        <div class="stat-item">
+          <mat-icon>bug_report</mat-icon>
+          <div class="stat-content">
+            <span class="stat-value">{{ getRepositoryStats()?.issues }}</span>
+            <span class="stat-label">Issues</span>
+          </div>
+        </div>
+
+        <div class="stat-item">
+          <mat-icon>code</mat-icon>
+          <div class="stat-content">
+            <span class="stat-value">{{ getRepositoryStats()?.language }}</span>
+            <span class="stat-label">Language</span>
+          </div>
+        </div>
+
+        <div class="stat-item">
+          <mat-icon>storage</mat-icon>
+          <div class="stat-content">
+            <span class="stat-value">{{ getRepositoryStats()?.size }}</span>
+            <span class="stat-label">Size</span>
+          </div>
+        </div>
+
+        <div class="stat-item">
+          <mat-icon>update</mat-icon>
+          <div class="stat-content">
+            <span class="stat-value">{{ getRepositoryStats()?.lastUpdated }}</span>
+            <span class="stat-label">Last Updated</span>
+          </div>
+        </div>
+      </div>
+
+      <mat-divider class="margin-top margin-bottom"></mat-divider>
+
+      <div class="branch-info">
+        <h4>Branch Information</h4>
+        <div class="branch-stats">
+          <div class="branch-stat">
+            <strong>Total Branches:</strong> {{ getBranchCount() }}
+          </div>
+          <div class="branch-stat">
+            <strong>Default Branch:</strong> {{ getDefaultBranch() }}
+          </div>
+        </div>
+
+        <div class="branches-list" *ngIf="repositoryInfo.branches?.length">
+          <h5>Available Branches:</h5>
+          <div class="branch-chips">
+            <mat-chip *ngFor="let branch of repositoryInfo.branches" color="primary" selected>
+              {{ branch.name }}
+            </mat-chip>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

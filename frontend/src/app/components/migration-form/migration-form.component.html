@@ -1,0 +1,100 @@
+<mat-card class="migration-form-card">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>description</mat-icon>
+      Generate Migration Document
+    </mat-card-title>
+    <mat-card-subtitle>
+      Create a migration document from GitHub repository data
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form [formGroup]="migrationForm" (ngSubmit)="generateMigration()">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>GitHub Repository URL</mat-label>
+          <input 
+            matInput 
+            formControlName="gitUrl" 
+            placeholder="https://github.com/owner/repository"
+            [matTooltip]="'Enter the full GitHub repository URL'"
+            matTooltipPosition="above">
+          <mat-icon matSuffix>link</mat-icon>
+          <mat-error>{{ getGitUrlError() }}</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row date-range">
+        <mat-form-field appearance="outline">
+          <mat-label>From Date</mat-label>
+          <input 
+            matInput 
+            formControlName="fromDate" 
+            type="date"
+            (change)="validateDateRange()">
+          <mat-icon matSuffix>calendar_today</mat-icon>
+          <mat-error *ngIf="migrationForm.get('fromDate')?.hasError('required')">
+            Start date is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>To Date</mat-label>
+          <input 
+            matInput 
+            formControlName="toDate" 
+            type="date"
+            (change)="validateDateRange()">
+          <mat-icon matSuffix>calendar_today</mat-icon>
+          <mat-error>{{ getDateRangeError() }}</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Document Format</mat-label>
+          <mat-select formControlName="format">
+            <mat-option *ngFor="let format of documentFormats" [value]="format.value">
+              {{ format.label }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matSuffix>file_copy</mat-icon>
+        </mat-form-field>
+
+        <div class="checkbox-container">
+          <mat-checkbox formControlName="includeDetails" color="primary">
+            Include detailed commit information
+          </mat-checkbox>
+        </div>
+      </div>
+
+      <div class="button-container">
+        <button 
+          mat-raised-button 
+          color="primary" 
+          type="submit"
+          [disabled]="migrationForm.invalid || isGenerating"
+          class="generate-button">
+          <mat-spinner *ngIf="isGenerating" diameter="20"></mat-spinner>
+          <mat-icon *ngIf="!isGenerating">file_download</mat-icon>
+          <span *ngIf="!isGenerating">Generate Migration Document</span>
+          <span *ngIf="isGenerating">Generating...</span>
+        </button>
+      </div>
+    </form>
+
+    <mat-divider class="margin-top margin-bottom"></mat-divider>
+
+    <div class="info-section">
+      <h4>What's included in the migration document:</h4>
+      <ul>
+        <li><strong>Repository Information:</strong> Name, description, language, stars, forks</li>
+        <li><strong>Branch Details:</strong> All branches and their latest commit SHA</li>
+        <li><strong>Commit History:</strong> All commits between the selected dates</li>
+        <li><strong>Author Information:</strong> Commit authors and timestamps</li>
+        <li><strong>Migration Summary:</strong> Overview of changes and statistics</li>
+      </ul>
+    </div>
+  </mat-card-content>
+</mat-card>
