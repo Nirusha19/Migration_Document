@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Migration Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .date-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .format-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .format-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .format-option:hover {
+            border-color: #667eea;
+            background-color: #f8f9ff;
+        }
+
+        .format-option input[type="radio"] {
+            width: auto;
+            margin-right: 8px;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 15px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e1e5e9;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #c3e6cb;
+        }
+
+        .preview {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #e9ecef;
+        }
+
+        .preview h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 GitHub Migration Tool</h1>
+            <p>Generate comprehensive migration documents from your GitHub repositories</p>
+        </div>
+
+        <form id="migrationForm">
+            <div class="form-group">
+                <label for="gitUrl">GitHub Repository URL *</label>
+                <input type="url" id="gitUrl" name="gitUrl" placeholder="https://github.com/owner/repository" required>
+            </div>
+
+            <div class="form-group">
+                <label for="branch">Branch</label>
+                <select id="branch" name="branch">
+                    <option value="main">main</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Date Range *</label>
+                <div class="date-inputs">
+                    <div>
+                        <label for="fromDate">From Date</label>
+                        <input type="date" id="fromDate" name="fromDate" required>
+                    </div>
+                    <div>
+                        <label for="toDate">To Date</label>
+                        <input type="date" id="toDate" name="toDate" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Export Format</label>
+                <div class="format-selection">
+                    <div class="format-option">
+                        <input type="radio" id="formatHtml" name="format" value="html" checked>
+                        <label for="formatHtml">HTML</label>
+                    </div>
+                    <div class="format-option">
+                        <input type="radio" id="formatMarkdown" name="format" value="markdown">
+                        <label for="formatMarkdown">Markdown</label>
+                    </div>
+                    <div class="format-option">
+                        <input type="radio" id="formatJson" name="format" value="json">
+                        <label for="formatJson">JSON</label>
+                    </div>
+                    <div class="format-option">
+                        <input type="radio" id="formatCsv" name="format" value="csv">
+                        <label for="formatCsv">CSV</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="button" id="previewBtn" class="btn-secondary">Preview Data</button>
+                <button type="submit" class="btn-primary">Generate Report</button>
+            </div>
+        </form>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Processing your request...</p>
+        </div>
+
+        <div id="message"></div>
+        <div id="preview" class="preview hidden"></div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin + '/api/migration';
+        
+        // Set default dates (last 30 days)
+        const today = new Date();
+        const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+        
+        document.getElementById('toDate').value = today.toISOString().split('T')[0];
+        document.getElementById('fromDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+
+        // Load branches when URL changes
+        document.getElementById('gitUrl').addEventListener('blur', async function() {
+            const gitUrl = this.value.trim();
+            if (!gitUrl) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/branches?gitUrl=${encodeURIComponent(gitUrl)}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const branchSelect = document.getElementById('branch');
+                    branchSelect.innerHTML = '';
+                    
+                    data.branches.forEach(branch => {
+                        const option = document.createElement('option');
+                        option.value = branch.name;
+                        option.textContent = branch.name;
+                        if (branch.name === data.defaultBranch) {
+                            option.selected = true;
+                        }
+                        branchSelect.appendChild(option);
+                    });
+                    
+                    showMessage('Repository branches loaded successfully', 'success');
+                } else {
+                    showMessage(data.error || 'Failed to load branches', 'error');
+                }
+            } catch (error) {
+                showMessage('Error loading branches: ' + error.message, 'error');
+            }
+        });
+
+        // Preview functionality
+        document.getElementById('previewBtn').addEventListener('click', async function() {
+            await handlePreview();
+        });
+
+        // Form submission
+        document.getElementById('migrationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await handleGeneration();
+        });
+
+        async function handlePreview() {
+            const formData = new FormData(document.getElementById('migrationForm'));
+            const data = Object.fromEntries(formData.entries());
+
+            if (!validateForm(data)) return;
+
+            showLoading(true);
+            hideMessage();
+            hidePreview();
+
+            try {
+                const response = await fetch(`${API_BASE}/preview`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showPreview(result);
+                    showMessage('Preview generated successfully', 'success');
+                } else {
+                    showMessage(result.error || 'Failed to generate preview', 'error');
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function handleGeneration() {
+            const formData = new FormData(document.getElementById('migrationForm'));
+            const data = Object.fromEntries(formData.entries());
+
+            if (!validateForm(data)) return;
+
+            showLoading(true);
+            hideMessage();
+
+            try {
+                const response = await fetch(`${API_BASE}/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    // Get filename from headers
+                    const contentDisposition = response.headers.get('content-disposition');
+                    let filename = 'migration-report';
+                    if (contentDisposition) {
+                        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+                        if (filenameMatch) {
+                            filename = filenameMatch[1];
+                        }
+                    }
+
+                    // Download the file
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+
+                    showMessage('Migration report generated and downloaded successfully!', 'success');
+                } else {
+                    const result = await response.json();
+                    showMessage(result.error || 'Failed to generate report', 'error');
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function validateForm(data) {
+            if (!data.gitUrl || !data.fromDate || !data.toDate) {
+                showMessage('Please fill in all required fields', 'error');
+                return false;
+            }
+
+            const fromDate = new Date(data.fromDate);
+            const toDate = new Date(data.toDate);
+
+            if (fromDate > toDate) {
+                showMessage('From date cannot be after to date', 'error');
+                return false;
+            }
+
+            if (toDate > new Date()) {
+                showMessage('To date cannot be in the future', 'error');
+                return false;
+            }
+
+            return true;
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+
+        function hideMessage() {
+            document.getElementById('message').innerHTML = '';
+        }
+
+        function showPreview(data) {
+            const previewDiv = document.getElementById('preview');
+            previewDiv.innerHTML = `
+                <h3>📊 Preview: ${data.repository.name}</h3>
+                <p><strong>Repository:</strong> ${data.repository.fullName}</p>
+                <p><strong>Description:</strong> ${data.repository.description || 'No description'}</p>
+                <p><strong>Branch:</strong> ${data.metadata.selectedBranch}</p>
+                <p><strong>Date Range:</strong> ${data.metadata.fromDate} to ${data.metadata.toDate}</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">${data.statistics.totalCommits}</div>
+                        <div class="stat-label">Commits</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${data.statistics.totalPullRequests}</div>
+                        <div class="stat-label">Pull Requests</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${data.statistics.totalIssues}</div>
+                        <div class="stat-label">Issues</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${data.statistics.totalReleases}</div>
+                        <div class="stat-label">Releases</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${data.statistics.linesAdded}</div>
+                        <div class="stat-label">Lines Added</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${data.statistics.linesDeleted}</div>
+                        <div class="stat-label">Lines Deleted</div>
+                    </div>
+                </div>
+            `;
+            previewDiv.classList.remove('hidden');
+        }
+
+        function hidePreview() {
+            document.getElementById('preview').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
