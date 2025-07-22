@@ -1,0 +1,84 @@
+{
+  "examples": {
+    "angular_migration": {
+      "description": "Analyze Angular framework migration from v12 to v17",
+      "config": {
+        "owner": "angular",
+        "repo": "angular",
+        "fromDate": "2022-01-01",
+        "toDate": "2024-01-01",
+        "branches": ["main", "12.x.x", "16.x.x", "17.x.x"],
+        "angularVersionFrom": "12",
+        "angularVersionTo": "17",
+        "outputFormats": ["markdown", "json"]
+      }
+    },
+    "feature_branch_analysis": {
+      "description": "Compare feature branch changes with main branch",
+      "config": {
+        "owner": "your-org",
+        "repo": "your-angular-app",
+        "fromDate": "2023-06-01",
+        "toDate": "2023-12-31",
+        "branches": ["main", "feature/angular-upgrade", "develop"],
+        "outputFormats": ["markdown", "csv"]
+      }
+    },
+    "release_comparison": {
+      "description": "Compare changes between release versions",
+      "config": {
+        "owner": "your-org",
+        "repo": "your-app",
+        "fromDate": "2023-01-01",
+        "toDate": "2024-01-01",
+        "branches": ["main", "release/v1.0", "release/v2.0"],
+        "outputFormats": ["json", "csv"]
+      }
+    },
+    "dependency_tracking": {
+      "description": "Track dependency changes over time",
+      "config": {
+        "owner": "facebook",
+        "repo": "react",
+        "fromDate": "2023-01-01",
+        "toDate": "2024-01-01",
+        "branches": ["main"],
+        "outputFormats": ["json"],
+        "includeDependencies": true
+      }
+    },
+    "large_repo_analysis": {
+      "description": "Analyze large repository with focused scope",
+      "config": {
+        "owner": "microsoft",
+        "repo": "vscode",
+        "fromDate": "2024-01-01",
+        "toDate": "2024-03-31",
+        "branches": ["main", "release/1.87"],
+        "outputFormats": ["markdown"],
+        "outputDir": "./vscode-analysis"
+      }
+    }
+  },
+  "templates": {
+    "angular_upgrade": {
+      "description": "Template for Angular version upgrades",
+      "requiredFields": ["owner", "repo", "angularVersionFrom", "angularVersionTo"],
+      "defaultConfig": {
+        "branches": ["main", "develop"],
+        "outputFormats": ["markdown", "json"],
+        "includeDependencies": true,
+        "includeConfigChanges": true
+      }
+    },
+    "sprint_analysis": {
+      "description": "Template for sprint/iteration analysis",
+      "requiredFields": ["owner", "repo", "fromDate", "toDate"],
+      "defaultConfig": {
+        "branches": ["main", "develop"],
+        "outputFormats": ["markdown", "csv"],
+        "outputDir": "./sprint-reports"
+      }
+    }
+  }
+}
