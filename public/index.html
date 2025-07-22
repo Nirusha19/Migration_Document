@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Migration Documentation Tool</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status-card {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .status-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .status-loading {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .jobs-section {
+            margin-top: 40px;
+        }
+
+        .job-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .job-status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-running { background: #d1ecf1; color: #0c5460; }
+        .status-failed { background: #f8d7da; color: #721c24; }
+
+        .download-links {
+            margin-top: 10px;
+        }
+
+        .download-links a {
+            display: inline-block;
+            margin-right: 10px;
+            padding: 5px 10px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: white;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 GitHub Migration Documentation Tool</h1>
+            <p>Generate comprehensive migration documentation for your Angular applications</p>
+        </div>
+
+        <div class="main-card">
+            <div class="card-header">
+                <h2>📊 Start Migration Analysis</h2>
+            </div>
+            <div class="card-body">
+                <form id="analysisForm">
+                    <div class="form-group">
+                        <label for="token">GitHub Personal Access Token *</label>
+                        <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" required>
+                        <small style="color: #666;">Get your token from <a href="https://github.com/settings/personal-access-tokens/tokens" target="_blank">GitHub Settings</a></small>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="owner">Repository Owner *</label>
+                            <input type="text" id="owner" placeholder="e.g., angular, microsoft" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="repo">Repository Name *</label>
+                            <input type="text" id="repo" placeholder="e.g., angular, vscode" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fromDate">From Date</label>
+                            <input type="date" id="fromDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="toDate">To Date</label>
+                            <input type="date" id="toDate">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="branches">Branches (comma-separated)</label>
+                        <input type="text" id="branches" placeholder="main,develop,feature/angular-17" value="main">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="angularFrom">Angular Version From</label>
+                            <input type="text" id="angularFrom" placeholder="e.g., 12">
+                        </div>
+                        <div class="form-group">
+                            <label for="angularTo">Angular Version To</label>
+                            <input type="text" id="angularTo" placeholder="e.g., 17">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="outputFormats">Output Formats</label>
+                        <select id="outputFormats" multiple style="height: 80px;">
+                            <option value="markdown" selected>Markdown</option>
+                            <option value="csv" selected>CSV</option>
+                            <option value="json" selected>JSON</option>
+                        </select>
+                        <small style="color: #666;">Hold Ctrl/Cmd to select multiple formats</small>
+                    </div>
+
+                    <button type="submit" class="btn" id="analyzeBtn">
+                        🔍 Start Analysis
+                    </button>
+                </form>
+
+                <div id="statusCard" class="status-card">
+                    <div id="statusMessage"></div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="jobs-section">
+            <h2 style="color: white; margin-bottom: 20px;">📋 Analysis Jobs</h2>
+            <div id="jobsList"></div>
+        </div>
+
+        <div class="footer">
+            <p>🛠️ Built with ❤️ for Angular migration documentation</p>
+        </div>
+    </div>
+
+    <script>
+        let currentJobId = null;
+        let statusInterval = null;
+
+        // Set default dates
+        document.getElementById('fromDate').value = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        document.getElementById('toDate').value = new Date().toISOString().split('T')[0];
+
+        document.getElementById('analysisForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                token: document.getElementById('token').value,
+                owner: document.getElementById('owner').value,
+                repo: document.getElementById('repo').value,
+                fromDate: document.getElementById('fromDate').value,
+                toDate: document.getElementById('toDate').value,
+                branches: document.getElementById('branches').value.split(',').map(b => b.trim()),
+                outputFormats: Array.from(document.getElementById('outputFormats').selectedOptions).map(o => o.value),
+                angularVersionFrom: document.getElementById('angularFrom').value,
+                angularVersionTo: document.getElementById('angularTo').value
+            };
+
+            try {
+                showStatus('Starting analysis...', 'loading', 0);
+                document.getElementById('analyzeBtn').disabled = true;
+
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    currentJobId = result.jobId;
+                    showStatus(`Analysis started! Job ID: ${result.jobId}`, 'loading', 10);
+                    startStatusPolling(result.jobId);
+                } else {
+                    showStatus(`Error: ${result.error}`, 'error');
+                    document.getElementById('analyzeBtn').disabled = false;
+                }
+            } catch (error) {
+                showStatus(`Network error: ${error.message}`, 'error');
+                document.getElementById('analyzeBtn').disabled = false;
+            }
+        });
+
+        function showStatus(message, type, progress = 0) {
+            const statusCard = document.getElementById('statusCard');
+            const statusMessage = document.getElementById('statusMessage');
+            const progressFill = document.getElementById('progressFill');
+
+            statusCard.style.display = 'block';
+            statusCard.className = `status-card status-${type}`;
+            statusMessage.textContent = message;
+            progressFill.style.width = `${progress}%`;
+        }
+
+        function startStatusPolling(jobId) {
+            statusInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/api/status/${jobId}`);
+                    const status = await response.json();
+
+                    if (response.ok) {
+                        showStatus(
+                            status.message || `Status: ${status.status}`,
+                            status.status === 'failed' ? 'error' : 'loading',
+                            status.progress || 0
+                        );
+
+                        if (status.status === 'completed') {
+                            clearInterval(statusInterval);
+                            showStatus('✅ Analysis completed! Check the jobs section below for download links.', 'success', 100);
+                            document.getElementById('analyzeBtn').disabled = false;
+                            loadJobs();
+                        } else if (status.status === 'failed') {
+                            clearInterval(statusInterval);
+                            showStatus(`❌ Analysis failed: ${status.error}`, 'error');
+                            document.getElementById('analyzeBtn').disabled = false;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Status polling error:', error);
+                }
+            }, 2000);
+        }
+
+        async function loadJobs() {
+            try {
+                const response = await fetch('/api/jobs');
+                const jobs = await response.json();
+
+                const jobsList = document.getElementById('jobsList');
+                
+                if (jobs.length === 0) {
+                    jobsList.innerHTML = '<p style="color: white; text-align: center;">No analysis jobs yet</p>';
+                    return;
+                }
+
+                jobsList.innerHTML = jobs.map(job => `
+                    <div class="job-item">
+                        <div class="job-header">
+                            <div>
+                                <strong>${job.config.owner}/${job.config.repo}</strong>
+                                <span class="job-status status-${job.status}">${job.status}</span>
+                            </div>
+                            <small>${new Date(job.startTime).toLocaleString()}</small>
+                        </div>
+                        <p><strong>Date Range:</strong> ${job.config.fromDate} to ${job.config.toDate}</p>
+                        <p><strong>Branches:</strong> ${job.config.branches.join(', ')}</p>
+                        ${job.status === 'completed' ? `
+                            <div class="download-links">
+                                <strong>Download Reports:</strong><br>
+                                <a href="/api/download/${job.id}/migration-summary.md">📄 Summary</a>
+                                <a href="/api/download/${job.id}/detailed-changes.md">📋 Details</a>
+                                <a href="/api/download/${job.id}/angular-migration.md">🅰️ Angular</a>
+                                <a href="/api/download/${job.id}/migration-data.json">📊 JSON Data</a>
+                            </div>
+                        ` : ''}
+                        ${job.report ? `
+                            <div style="margin-top: 10px; font-size: 14px; color: #666;">
+                                <strong>Results:</strong> ${job.report.summary.totalCommits} commits, ${job.report.summary.filesChanged} files changed
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Failed to load jobs:', error);
+            }
+        }
+
+        // Load jobs on page load
+        loadJobs();
+
+        // Auto-refresh jobs every 30 seconds
+        setInterval(loadJobs, 30000);
+    </script>
+</body>
+</html>

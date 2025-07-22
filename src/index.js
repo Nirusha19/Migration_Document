@@ -35,7 +35,6 @@ program
 
       const config = new ConfigManager();
       
-      // Initialize configuration from options, environment, or interactive mode
       let finalConfig;
       
       if (options.interactive) {
@@ -44,7 +43,6 @@ program
         finalConfig = await config.buildConfig(options);
       }
 
-      // Validate configuration
       const validation = config.validateConfig(finalConfig);
       if (!validation.isValid) {
         console.error(chalk.red('❌ Configuration validation failed:'));
@@ -52,19 +50,16 @@ program
         process.exit(1);
       }
 
-      // Initialize GitHub Migration Tool
       const migrationTool = new GitHubMigrationTool(finalConfig);
 
       console.log(chalk.green('✅ Configuration validated successfully'));
       console.log(chalk.blue('📊 Starting migration analysis...'));
 
-      // Generate migration report
       const report = await migrationTool.generateMigrationReport();
 
       console.log(chalk.green('\n🎉 Migration documentation generated successfully!'));
       console.log(chalk.yellow(`📁 Output location: ${finalConfig.outputDir}`));
       
-      // Display summary
       displaySummary(report);
 
     } catch (error) {
@@ -125,7 +120,7 @@ async function runInteractiveMode(config) {
       type: 'input',
       name: 'branches',
       message: 'Branches to analyze (comma-separated):',
-      default: process.env.BRANCHES || 'main,develop',
+      default: process.env.BRANCHES || 'main',
       validate: input => input.trim() !== '' || 'At least one branch is required'
     },
     {
@@ -144,18 +139,6 @@ async function runInteractiveMode(config) {
       name: 'outputDir',
       message: 'Output directory:',
       default: process.env.OUTPUT_DIR || './migration-docs'
-    },
-    {
-      type: 'input',
-      name: 'angularFrom',
-      message: 'Angular version migrating from (optional):',
-      default: process.env.ANGULAR_VERSION_FROM
-    },
-    {
-      type: 'input',
-      name: 'angularTo',
-      message: 'Angular version migrating to (optional):',
-      default: process.env.ANGULAR_VERSION_TO
     }
   ]);
 
@@ -167,9 +150,7 @@ async function runInteractiveMode(config) {
     to: answers.toDate,
     branches: answers.branches,
     format: answers.outputFormats.join(','),
-    outputDir: answers.outputDir,
-    angularFrom: answers.angularFrom,
-    angularTo: answers.angularTo
+    outputDir: answers.outputDir
   });
 }
 
@@ -187,16 +168,5 @@ function displaySummary(report) {
     console.log(chalk.white(`  • TypeScript config updates: ${report.angular.tsConfigChanges}`));
   }
 }
-
-// Handle uncaught exceptions
-process.on('uncaughtException', (error) => {
-  console.error(chalk.red('\n💥 Uncaught Exception:'), error.message);
-  process.exit(1);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-  console.error(chalk.red('\n💥 Unhandled Rejection at:'), promise, 'reason:', reason);
-  process.exit(1);
-});
 
 program.parse();
