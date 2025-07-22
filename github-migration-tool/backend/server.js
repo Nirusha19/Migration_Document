@@ -9,7 +9,7 @@ const gitService = require('./services/gitService');
 const migrationRoutes = require('./routes/migrationRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 // Security middleware
 app.use(helmet());
@@ -25,7 +25,7 @@ app.use(limiter);
 // CORS configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS ? 
   process.env.ALLOWED_ORIGINS.split(',') : 
-  ['http://localhost:4200', 'http://localhost:3000'];
+  ['http://localhost:4200', 'http://localhost:8080'];
 
 app.use(cors({
   origin: allowedOrigins,
@@ -65,7 +65,7 @@ app.use((err, req, res, next) => {
 });
 
 // 404 handler
-app.use('*', (req, res) => {
+app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
